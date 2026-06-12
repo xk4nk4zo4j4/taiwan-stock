@@ -39,9 +39,18 @@
   .price{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;text-align:right}
   .chg{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right}
   .up{color:var(--red)}.down{color:var(--green)}.flat{color:var(--muted)}
+
+  /* 市場/來源 badge */
   .badge{font-size:9px;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;vertical-align:middle;margin-left:4px}
   .tw{background:rgba(0,153,255,.15);color:var(--accent2);border:1px solid rgba(0,153,255,.3)}
   .ot{background:rgba(255,179,64,.12);color:var(--warn);border:1px solid rgba(255,179,64,.3)}
+
+  /* 價格類型 badge */
+  .pt{font-size:9px;padding:1px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;vertical-align:middle;margin-left:5px;font-weight:600}
+  .pt-realtime  {background:rgba(34,197,94,.12); color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+  .pt-closing   {background:rgba(0,212,170,.12);  color:var(--accent);border:1px solid rgba(0,212,170,.3)}
+  .pt-prev_close{background:rgba(100,116,139,.15);color:var(--dim);border:1px solid rgba(100,116,139,.3)}
+
   .empty{padding:60px 20px;text-align:center;color:var(--muted);font-size:13px}
   .empty .ic{font-size:28px;margin-bottom:12px;opacity:.4}
   .rfooter{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
@@ -57,6 +66,12 @@
   .ibox{margin-top:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.8}
   .ibox .t{color:var(--dim);font-weight:600;margin-bottom:6px}
   .w{color:var(--warn)}
+
+  /* 圖例 */
+  .legend{margin-top:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted);line-height:2}
+  .legend .t{color:var(--dim);font-weight:600;margin-bottom:4px}
+  .legend-row{display:flex;align-items:center;gap:8px}
+
   .note{font-size:10px;color:var(--muted);padding:6px 16px 8px;font-family:'JetBrains Mono',monospace}
   @media(max-width:640px){.layout{grid-template-columns:1fr}}
 </style>
@@ -81,16 +96,24 @@
           </div>
         </div>
       </div>
+
       <div class="ibox">
         <div class="t">使用說明</div>
         <div>• 每行輸入一個股票代號</div>
         <div>• 支援上市、上櫃、ETF、債券ETF</div>
-        <div>• 資料來源：TWSE MIS 即時系統</div>
         <div class="w" style="margin-top:6px">• 查詢完按「複製收盤價」</div>
         <div class="w">• 直接貼入 Excel 即可</div>
-        <div style="margin-top:6px">• 非交易日或盤前可能無資料</div>
+        <div style="margin-top:6px">• 建議收盤後（13:30+）查詢</div>
+      </div>
+
+      <div class="legend">
+        <div class="t">價格類型說明</div>
+        <div class="legend-row"><span class="pt pt-realtime">即時價</span> 盤中即時成交價</div>
+        <div class="legend-row"><span class="pt pt-closing">收盤價</span> 當日確定收盤價</div>
+        <div class="legend-row"><span class="pt pt-prev_close">昨收價</span> 盤前或非交易日</div>
       </div>
     </div>
+
     <div class="panel rp">
       <div class="ph"><span class="dot" style="background:var(--accent2)"></span>查詢結果</div>
       <div class="pbar"><div class="pfill" id="progressFill"></div></div>
@@ -112,6 +135,13 @@
 
 <script>
 const WORKER = 'https://taiwan-stock-api.duoduop33.workers.dev';
+
+const PRICE_TYPE = {
+  realtime:   { label: '即時價', cls: 'pt-realtime' },
+  closing:    { label: '收盤價', cls: 'pt-closing' },
+  prev_close: { label: '昨收價', cls: 'pt-prev_close' },
+  unknown:    { label: '?',      cls: 'pt-prev_close' },
+};
 
 let resultsData = [];
 
@@ -154,36 +184,34 @@ async function fetchPrices(){
   setStatus(`查詢 ${codes.length} 支股票中...`, true);
 
   try {
-    const url = `${WORKER}/api/quotes?codes=${codes.join(',')}`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    const res = await fetch(`${WORKER}/api/quotes?codes=${codes.join(',')}`, {
+      signal: AbortSignal.timeout(15000)
+    });
     const data = await res.json();
-
     if (data.error) throw new Error(data.error);
 
     document.getElementById('progressFill').style.width='90%';
 
-    // 依輸入順序整理結果
     resultsData = codes.map(code => {
       const r = data[code];
       if (!r) return { code, ok: false };
+      const c = parseFloat(r.close), ch = parseFloat(r.change);
+      const prev = c - ch;
       return {
         code, ok: true,
         name: r.name,
         close: r.close,
         change: r.change,
-        pct: (() => {
-          const c = parseFloat(r.close), ch = parseFloat(r.change);
-          const prev = c - ch;
-          return prev ? ((ch/prev)*100).toFixed(2) : '0.00';
-        })(),
-        source: r.source
+        pct: prev ? ((ch/prev)*100).toFixed(2) : '0.00',
+        source: r.source,
+        priceType: r.priceType || 'unknown',
       };
     });
 
     let ok=0, fail=0;
     let html=`<table><thead><tr>
       <th>代號</th><th>名稱</th>
-      <th class="r">收盤價</th><th class="r">漲跌</th>
+      <th class="r">價格</th><th class="r">漲跌</th>
     </tr></thead><tbody>`;
 
     resultsData.forEach(r => {
@@ -191,13 +219,15 @@ async function fetchPrices(){
         ok++;
         const up=parseFloat(r.change)>0, dn=parseFloat(r.change)<0;
         const cls=up?'up':dn?'down':'flat', sign=up?'▲':dn?'▼':'—';
-        const bdg=r.source==='TWSE'
-          ?'<span class="badge tw">上市</span>'
-          :'<span class="badge ot">上櫃</span>';
+        const mktBadge = r.source==='TWSE'
+          ? '<span class="badge tw">上市</span>'
+          : '<span class="badge ot">上櫃</span>';
+        const pt = PRICE_TYPE[r.priceType] || PRICE_TYPE.unknown;
+        const ptBadge = `<span class="pt ${pt.cls}">${pt.label}</span>`;
         html+=`<tr>
           <td class="code">${r.code}</td>
-          <td>${r.name}${bdg}</td>
-          <td class="price ${cls}">${r.close}</td>
+          <td>${r.name}${mktBadge}</td>
+          <td class="price ${cls}">${r.close}${ptBadge}</td>
           <td class="chg ${cls}">${sign} ${Math.abs(r.change)} (${r.pct}%)</td>
         </tr>`;
       } else {
@@ -210,7 +240,7 @@ async function fetchPrices(){
     });
 
     html+=`</tbody></table>
-    <div class="note">資料來源：TWSE MIS 即時系統｜支援上市 + 上櫃</div>`;
+    <div class="note">資料來源：TWSE MIS 即時系統｜${new Date().toLocaleTimeString('zh-TW')} 查詢</div>`;
 
     document.getElementById('resultsBody').innerHTML=html;
     document.getElementById('progressFill').style.width='100%';
@@ -222,8 +252,7 @@ async function fetchPrices(){
   } catch(e) {
     document.getElementById('resultsBody').innerHTML=`
       <div style="padding:20px 16px;color:var(--danger);font-size:12px;line-height:2">
-        ❌ 查詢失敗：${e.message}<br>
-        請確認 Worker 已部署，或稍後再試。
+        ❌ 查詢失敗：${e.message}
       </div>`;
     setStatus('查詢失敗');
     document.getElementById('progressFill').style.width='0%';
@@ -236,7 +265,7 @@ function copyPrices(){
   const txt=resultsData.filter(r=>r.ok).map(r=>r.close).join('\n');
   if(!txt){showToast('沒有資料');return;}
   navigator.clipboard.writeText(txt).then(()=>{
-    showToast(`✓ 已複製 ${resultsData.filter(r=>r.ok).length} 筆收盤價，直接貼入 Excel`);
+    showToast(`✓ 已複製 ${resultsData.filter(r=>r.ok).length} 筆價格，直接貼入 Excel`);
     const b=document.getElementById('cpBtn');
     b.classList.add('copied');b.textContent='已複製！';
     setTimeout(()=>{b.classList.remove('copied');b.textContent='複製收盤價';},2000);
