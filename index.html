@@ -558,43 +558,42 @@
     }
 
     // 依序查詢：先試 tse，失敗再試 otc
-    async function fetchOneQuote(code) {
-      const markets = ['tse', 'otc'];
+   async function fetchOneQuote(code) {
+  try {
+    // 不帶 market，讓 API 自己判斷是上市還是上櫃
+    const url = `${QUOTE_API}/quote?symbol=${encodeURIComponent(code)}`;
+    const res = await fetch(url);
+    if (!res.ok) return { ok: false, code };
 
-      for (const mkt of markets) {
-        try {
-          const url = `${QUOTE_API}/quote?symbol=${encodeURIComponent(code)}&market=${mkt}`;
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (!data.ok) continue;
+    const data = await res.json();
+    if (!data.ok) return { ok: false, code };
 
-          const price = Number(data.price);
-          const prevClose =
-            data.meta && data.meta.prevClose != null
-              ? Number(data.meta.prevClose)
-              : price;
+    const price = Number(data.price);
+    // 價格異常（0 或 NaN）也視為失敗
+    if (!price || !isFinite(price)) return { ok: false, code };
 
-          const chg = price - prevClose;
-          const pct = prevClose ? ((chg / prevClose) * 100) : 0;
+    const prevClose =
+      data.meta && data.meta.prevClose != null
+        ? Number(data.meta.prevClose)
+        : price;
 
-          return {
-            ok: true,
-            code,
-            name: data.meta && data.meta.name ? data.meta.name : code,
-            close: price.toFixed(2),
-            change: chg.toFixed(2),
-            pct: pct.toFixed(2),
-            source: mkt === 'tse' ? 'TWSE' : 'OTC'
-          };
-        } catch (e) {
-          // 單一市場錯誤就換下一個市場
-        }
-      }
+    const chg = price - prevClose;
+    const pct = prevClose ? ((chg / prevClose) * 100) : 0;
 
-      return { ok: false, code };
-    }
-
+    return {
+      ok: true,
+      code,
+      name: data.meta && data.meta.name ? data.meta.name : code,
+      close: price.toFixed(2),
+      change: chg.toFixed(2),
+      pct: pct.toFixed(2),
+      // API 會回正確的 market，拿來決定上市 / 上櫃標籤
+      source: data.market === 'tse' ? 'TWSE' : 'OTC'
+    };
+  } catch (e) {
+    return { ok: false, code };
+  }
+}
     async function fetchPrices() {
       const codes = parseInput();
       if (!codes.length) {
