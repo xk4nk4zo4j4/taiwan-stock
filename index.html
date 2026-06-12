@@ -1,109 +1,264 @@
-/**
- * Cloudflare Worker - 台股收盤價查詢
- *
- * 架構說明：
- * 改用 TWSE MIS 即時報價 API（mis.twse.com.tw）
- * 此 API 上市用 tse_代號.tw，上櫃用 otc_代號.tw
- * 一次可查多支，用 | 分隔
- *
- * GET /api/quotes?codes=2330,00679B,0050,3390
- * GET /ping
- */
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股收盤價查詢</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{--bg:#0a0e14;--surface:#111620;--surface2:#171d2a;--border:#1e2a3a;--accent:#00d4aa;--accent2:#0099ff;--danger:#ff4d6d;--warn:#ffb340;--text:#e2e8f0;--muted:#64748b;--dim:#94a3b8;--green:#22c55e;--red:#ef4444}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px}
+  .container{max-width:960px;margin:0 auto}
+  header{display:flex;align-items:baseline;gap:12px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+  h1{font-size:22px;font-weight:700;letter-spacing:.05em;color:var(--accent)}
+  .sub{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .date-badge{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:4px}
+  .layout{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .ph{padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  textarea{width:100%;height:320px;background:transparent;border:none;outline:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;padding:14px 16px;resize:none}
+  textarea::placeholder{color:var(--muted)}
+  .ifooter{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .cnt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}.cnt span{color:var(--accent);font-weight:600}
+  .btn{padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:500;transition:all .15s}
+  .btn-p{background:var(--accent);color:#0a0e14}.btn-p:hover{background:#00f0c0;transform:translateY(-1px)}.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn-g{background:transparent;color:var(--dim);border:1px solid var(--border);font-size:12px;padding:6px 12px}.btn-g:hover{border-color:var(--accent);color:var(--accent)}
+  .rp{min-height:420px}
+  .sbar{padding:10px 16px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;min-height:38px}
+  .spin{width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  table{width:100%;border-collapse:collapse}
+  th{padding:8px 14px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);background:var(--surface2)}
+  th.r{text-align:right}
+  td{padding:9px 14px;font-size:13px;border-bottom:1px solid rgba(30,42,58,.6)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(0,212,170,.03)}
+  .code{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:12px}
+  .price{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;text-align:right}
+  .chg{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right}
+  .up{color:var(--red)}.down{color:var(--green)}.flat{color:var(--muted)}
+  .badge{font-size:9px;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;vertical-align:middle;margin-left:4px}
+  .tw{background:rgba(0,153,255,.15);color:var(--accent2);border:1px solid rgba(0,153,255,.3)}
+  .ot{background:rgba(255,179,64,.12);color:var(--warn);border:1px solid rgba(255,179,64,.3)}
+  .empty{padding:60px 20px;text-align:center;color:var(--muted);font-size:13px}
+  .empty .ic{font-size:28px;margin-bottom:12px;opacity:.4}
+  .rfooter{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+  .stats{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;gap:16px}
+  .ok-c{color:var(--green)}.fail-c{color:var(--danger)}
+  .cas{display:flex;gap:8px}
+  .cb{padding:6px 14px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+  .cb:hover{border-color:var(--accent);color:var(--accent)}.cb.copied{border-color:var(--green);color:var(--green)}
+  .pbar{height:2px;background:var(--border);overflow:hidden}
+  .pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .4s}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:999}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .ibox{margin-top:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.8}
+  .ibox .t{color:var(--dim);font-weight:600;margin-bottom:6px}
+  .w{color:var(--warn)}
+  .note{font-size:10px;color:var(--muted);padding:6px 16px 8px;font-family:'JetBrains Mono',monospace}
+  @media(max-width:640px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>台股收盤價</h1>
+    <span class="sub">TWSE / OTC</span>
+    <div class="date-badge" id="dateDisplay">—</div>
+  </header>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="ph"><span class="dot"></span>股票代號</div>
+        <textarea id="stockInput" placeholder="每行一個代號&#10;例如：&#10;2330&#10;2317&#10;0050&#10;00878&#10;00679B&#10;3390&#10;4175"></textarea>
+        <div class="ifooter">
+          <span class="cnt">共 <span id="inputCount">0</span> 筆</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-g" onclick="clearAll()">清除</button>
+            <button class="btn btn-p" id="fetchBtn" onclick="fetchPrices()">查詢收盤價</button>
+          </div>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="t">使用說明</div>
+        <div>• 每行輸入一個股票代號</div>
+        <div>• 支援上市、上櫃、ETF、債券ETF</div>
+        <div>• 資料來源：TWSE MIS 即時系統</div>
+        <div class="w" style="margin-top:6px">• 查詢完按「複製收盤價」</div>
+        <div class="w">• 直接貼入 Excel 即可</div>
+        <div style="margin-top:6px">• 非交易日或盤前可能無資料</div>
+      </div>
+    </div>
+    <div class="panel rp">
+      <div class="ph"><span class="dot" style="background:var(--accent2)"></span>查詢結果</div>
+      <div class="pbar"><div class="pfill" id="progressFill"></div></div>
+      <div class="sbar" id="statusBar"><span>等待查詢...</span></div>
+      <div id="resultsBody">
+        <div class="empty"><div class="ic">📊</div><div>輸入股票代號後按「查詢收盤價」</div></div>
+      </div>
+      <div class="rfooter" id="resultsFooter" style="display:none">
+        <div class="stats" id="statsDisplay"></div>
+        <div class="cas">
+          <button class="cb" id="cpBtn" onclick="copyPrices()">複製收盤價</button>
+          <button class="cb" id="cbBtn" onclick="copyWithCodes()">複製代號+價格</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-const MIS_URL = 'https://mis.twse.com.tw/stock/api/getStockInfo.jsp';
+<script>
+const WORKER = 'https://taiwan-stock-api.duoduop33.workers.dev';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Content-Type': 'application/json; charset=utf-8',
-};
+let resultsData = [];
 
-// 上櫃代號特徵：純數字4碼但屬於OTC、或含英文字母(如00679B)
-// 策略：先試 tse_，失敗或無資料再試 otc_
-// 實務上：用 | 把 tse 和 otc 兩個都送進去，API 會回傳有資料的那個
+document.getElementById('dateDisplay').textContent =
+  new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
 
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
+document.getElementById('stockInput').addEventListener('input', () => {
+  document.getElementById('inputCount').textContent = parseInput().length;
+});
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: CORS });
-    }
+function parseInput() {
+  return document.getElementById('stockInput').value
+    .split('\n').map(s=>s.trim().toUpperCase()).filter(s=>s.length>=4 && /^\d/.test(s));
+}
 
-    if (url.pathname === '/ping') {
-      return new Response(JSON.stringify({ ok: true, time: new Date().toISOString() }), { headers: CORS });
-    }
+function clearAll() {
+  document.getElementById('stockInput').value='';
+  document.getElementById('inputCount').textContent='0';
+  document.getElementById('resultsBody').innerHTML='<div class="empty"><div class="ic">📊</div><div>輸入股票代號後按「查詢收盤價」</div></div>';
+  document.getElementById('resultsFooter').style.display='none';
+  document.getElementById('progressFill').style.width='0%';
+  setStatus('等待查詢...');
+  resultsData=[];
+}
 
-    if (url.pathname === '/api/quotes') {
-      const codesParam = url.searchParams.get('codes') || '';
-      const codes = codesParam.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
-      if (!codes.length) {
-        return new Response(JSON.stringify({ error: 'codes param required' }), { status: 400, headers: CORS });
-      }
-      return queryStocks(codes);
-    }
+function setStatus(msg, loading=false){
+  document.getElementById('statusBar').innerHTML = loading
+    ? `<div class="spin"></div><span>${msg}</span>`
+    : `<span>${msg}</span>`;
+}
 
-    return new Response(
-      JSON.stringify({ error: 'Not found', usage: '/api/quotes?codes=2330,00679B,0050' }),
-      { status: 404, headers: CORS }
-    );
-  }
-};
+async function fetchPrices(){
+  const codes = parseInput();
+  if (!codes.length){ showToast('請先輸入股票代號'); return; }
 
-async function queryStocks(codes) {
-  // 對每個代號，同時送 tse_ 和 otc_ 版本，讓 API 自己回有資料的
-  const exCodes = codes.flatMap(c => [`tse_${c}.tw`, `otc_${c}.tw`]);
-  const param = exCodes.join('|');
-  const apiUrl = `${MIS_URL}?ex_ch=${encodeURIComponent(param)}&json=1&delay=0`;
+  document.getElementById('fetchBtn').disabled=true;
+  resultsData=[];
+  document.getElementById('resultsFooter').style.display='none';
+  document.getElementById('progressFill').style.width='20%';
+  setStatus(`查詢 ${codes.length} 支股票中...`, true);
 
   try {
-    const res = await fetch(apiUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Referer': 'https://mis.twse.com.tw/',
-        'Accept': 'application/json',
-      },
-      signal: AbortSignal.timeout(10000),
+    const url = `${WORKER}/api/quotes?codes=${codes.join(',')}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    document.getElementById('progressFill').style.width='90%';
+
+    // 依輸入順序整理結果
+    resultsData = codes.map(code => {
+      const r = data[code];
+      if (!r) return { code, ok: false };
+      return {
+        code, ok: true,
+        name: r.name,
+        close: r.close,
+        change: r.change,
+        pct: (() => {
+          const c = parseFloat(r.close), ch = parseFloat(r.change);
+          const prev = c - ch;
+          return prev ? ((ch/prev)*100).toFixed(2) : '0.00';
+        })(),
+        source: r.source
+      };
     });
 
-    if (!res.ok) {
-      return new Response(
-        JSON.stringify({ error: `MIS API returned ${res.status}` }),
-        { status: 502, headers: CORS }
-      );
-    }
+    let ok=0, fail=0;
+    let html=`<table><thead><tr>
+      <th>代號</th><th>名稱</th>
+      <th class="r">收盤價</th><th class="r">漲跌</th>
+    </tr></thead><tbody>`;
 
-    const data = await res.json();
-    const msgArray = data?.msgArray || [];
-
-    // 整理成 { 代號: { name, close, change, source } }
-    const result = {};
-    msgArray.forEach(item => {
-      const code = (item.c || '').trim();
-      const name = (item.n || '').trim();
-      const ex   = (item.ex || '').trim(); // tse 或 otc
-      // z = 最新成交價（盤中）或收盤價
-      // y = 昨收
-      const close  = parseFloat(item.z) || parseFloat(item.y) || 0;
-      const prevClose = parseFloat(item.y) || 0;
-      const change = prevClose ? +(close - prevClose).toFixed(2) : 0;
-
-      if (code && close) {
-        result[code] = {
-          name,
-          close: close.toFixed(2),
-          change: change.toFixed(2),
-          source: ex === 'tse' ? 'TWSE' : 'OTC',
-        };
+    resultsData.forEach(r => {
+      if (r.ok) {
+        ok++;
+        const up=parseFloat(r.change)>0, dn=parseFloat(r.change)<0;
+        const cls=up?'up':dn?'down':'flat', sign=up?'▲':dn?'▼':'—';
+        const bdg=r.source==='TWSE'
+          ?'<span class="badge tw">上市</span>'
+          :'<span class="badge ot">上櫃</span>';
+        html+=`<tr>
+          <td class="code">${r.code}</td>
+          <td>${r.name}${bdg}</td>
+          <td class="price ${cls}">${r.close}</td>
+          <td class="chg ${cls}">${sign} ${Math.abs(r.change)} (${r.pct}%)</td>
+        </tr>`;
+      } else {
+        fail++;
+        html+=`<tr>
+          <td class="code">${r.code}</td>
+          <td colspan="3" style="color:var(--danger);font-size:12px;">查無資料（代號有誤 / 今日無成交 / 盤前）</td>
+        </tr>`;
       }
     });
 
-    return new Response(JSON.stringify(result), { headers: CORS });
+    html+=`</tbody></table>
+    <div class="note">資料來源：TWSE MIS 即時系統｜支援上市 + 上櫃</div>`;
 
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: CORS }
-    );
+    document.getElementById('resultsBody').innerHTML=html;
+    document.getElementById('progressFill').style.width='100%';
+    setStatus(`查詢完成｜${new Date().toLocaleTimeString('zh-TW')}｜共 ${codes.length} 筆`);
+    document.getElementById('statsDisplay').innerHTML=
+      `<span class="ok-c">✓ ${ok} 筆成功</span>${fail?`<span class="fail-c">✗ ${fail} 筆查無資料</span>`:''}`;
+    document.getElementById('resultsFooter').style.display='flex';
+
+  } catch(e) {
+    document.getElementById('resultsBody').innerHTML=`
+      <div style="padding:20px 16px;color:var(--danger);font-size:12px;line-height:2">
+        ❌ 查詢失敗：${e.message}<br>
+        請確認 Worker 已部署，或稍後再試。
+      </div>`;
+    setStatus('查詢失敗');
+    document.getElementById('progressFill').style.width='0%';
   }
+
+  document.getElementById('fetchBtn').disabled=false;
 }
+
+function copyPrices(){
+  const txt=resultsData.filter(r=>r.ok).map(r=>r.close).join('\n');
+  if(!txt){showToast('沒有資料');return;}
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast(`✓ 已複製 ${resultsData.filter(r=>r.ok).length} 筆收盤價，直接貼入 Excel`);
+    const b=document.getElementById('cpBtn');
+    b.classList.add('copied');b.textContent='已複製！';
+    setTimeout(()=>{b.classList.remove('copied');b.textContent='複製收盤價';},2000);
+  });
+}
+
+function copyWithCodes(){
+  const txt=resultsData.filter(r=>r.ok).map(r=>`${r.code}\t${r.close}`).join('\n');
+  if(!txt){showToast('沒有資料');return;}
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast('✓ 已複製代號+價格（Tab 分隔）');
+    const b=document.getElementById('cbBtn');
+    b.classList.add('copied');b.textContent='已複製！';
+    setTimeout(()=>{b.classList.remove('copied');b.textContent='複製代號+價格';},2000);
+  });
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
