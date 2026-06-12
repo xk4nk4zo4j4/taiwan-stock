@@ -26,7 +26,7 @@
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0;
+      padding: 0
     }
 
     body {
@@ -34,12 +34,12 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 24px 16px;
+      padding: 24px 16px
     }
 
     .container {
       max-width: 960px;
-      margin: 0 auto;
+      margin: 0 auto
     }
 
     header {
@@ -48,20 +48,20 @@
       gap: 12px;
       margin-bottom: 28px;
       padding-bottom: 18px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border)
     }
 
     h1 {
       font-size: 22px;
       font-weight: 700;
       letter-spacing: .05em;
-      color: var(--accent);
+      color: var(--accent)
     }
 
     .sub {
       font-size: 12px;
       color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'JetBrains Mono', monospace
     }
 
     .date-badge {
@@ -72,21 +72,21 @@
       background: var(--surface);
       border: 1px solid var(--border);
       padding: 4px 10px;
-      border-radius: 4px;
+      border-radius: 4px
     }
 
     .layout {
       display: grid;
       grid-template-columns: 240px 1fr;
       gap: 16px;
-      align-items: start;
+      align-items: start
     }
 
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      overflow: hidden;
+      overflow: hidden
     }
 
     .ph {
@@ -99,14 +99,14 @@
       color: var(--muted);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 8px
     }
 
     .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--accent);
+      background: var(--accent)
     }
 
     textarea {
@@ -120,11 +120,11 @@
       font-size: 13px;
       line-height: 1.8;
       padding: 14px 16px;
-      resize: none;
+      resize: none
     }
 
     textarea::placeholder {
-      color: var(--muted);
+      color: var(--muted)
     }
 
     .ifooter {
@@ -132,18 +132,18 @@
       border-top: 1px solid var(--border);
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: space-between
     }
 
     .cnt {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      color: var(--muted);
+      color: var(--muted)
     }
 
     .cnt span {
       color: var(--accent);
-      font-weight: 600;
+      font-weight: 600
     }
 
     .btn {
@@ -154,23 +154,23 @@
       font-family: 'Noto Sans TC', sans-serif;
       font-size: 13px;
       font-weight: 500;
-      transition: all .15s;
+      transition: all .15s
     }
 
     .btn-p {
       background: var(--accent);
-      color: #0a0e14;
+      color: #0a0e14
     }
 
     .btn-p:hover {
       background: #00f0c0;
-      transform: translateY(-1px);
+      transform: translateY(-1px)
     }
 
     .btn-p:disabled {
       opacity: .4;
       cursor: not-allowed;
-      transform: none;
+      transform: none
     }
 
     .btn-g {
@@ -178,16 +178,16 @@
       color: var(--dim);
       border: 1px solid var(--border);
       font-size: 12px;
-      padding: 6px 12px;
+      padding: 6px 12px
     }
 
     .btn-g:hover {
       border-color: var(--accent);
-      color: var(--accent);
+      color: var(--accent)
     }
 
     .rp {
-      min-height: 420px;
+      min-height: 420px
     }
 
     .sbar {
@@ -199,7 +199,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      min-height: 38px;
+      min-height: 38px
     }
 
     .spin {
@@ -209,18 +209,16 @@
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin .6s linear infinite;
-      flex-shrink: 0;
+      flex-shrink: 0
     }
 
     @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+      to { transform: rotate(360deg) }
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: collapse
     }
 
     th {
@@ -232,57 +230,43 @@
       color: var(--muted);
       text-align: left;
       border-bottom: 1px solid var(--border);
-      background: var(--surface2);
+      background: var(--surface2)
     }
 
-    th.r {
-      text-align: right;
-    }
+    th.r { text-align: right }
 
     td {
       padding: 9px 14px;
       font-size: 13px;
-      border-bottom: 1px solid rgba(30, 42, 58, .6);
+      border-bottom: 1px solid rgba(30, 42, 58, .6)
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
+    tr:last-child td { border-bottom: none }
 
-    tr:hover td {
-      background: rgba(0, 212, 170, .03);
-    }
+    tr:hover td { background: rgba(0, 212, 170, .03) }
 
     .code {
       font-family: 'JetBrains Mono', monospace;
       color: var(--dim);
-      font-size: 12px;
+      font-size: 12px
     }
 
     .price {
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 600;
-      text-align: right;
+      text-align: right
     }
 
     .chg {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      text-align: right;
+      text-align: right
     }
 
-    .up {
-      color: var(--red);
-    }
-
-    .down {
-      color: var(--green);
-    }
-
-    .flat {
-      color: var(--muted);
-    }
+    .up { color: var(--red) }
+    .down { color: var(--green) }
+    .flat { color: var(--muted) }
 
     .badge {
       font-size: 9px;
@@ -290,32 +274,32 @@
       border-radius: 3px;
       font-family: 'JetBrains Mono', monospace;
       vertical-align: middle;
-      margin-left: 4px;
+      margin-left: 4px
     }
 
     .tw {
       background: rgba(0, 153, 255, .15);
       color: var(--accent2);
-      border: 1px solid rgba(0, 153, 255, .3);
+      border: 1px solid rgba(0, 153, 255, .3)
     }
 
     .ot {
       background: rgba(255, 179, 64, .12);
       color: var(--warn);
-      border: 1px solid rgba(255, 179, 64, .3);
+      border: 1px solid rgba(255, 179, 64, .3)
     }
 
     .empty {
       padding: 60px 20px;
       text-align: center;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 13px
     }
 
     .empty .ic {
       font-size: 28px;
       margin-bottom: 12px;
-      opacity: .4;
+      opacity: .4
     }
 
     .rfooter {
@@ -324,7 +308,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--surface2);
+      background: var(--surface2)
     }
 
     .stats {
@@ -332,21 +316,13 @@
       font-size: 11px;
       color: var(--muted);
       display: flex;
-      gap: 16px;
+      gap: 16px
     }
 
-    .ok-c {
-      color: var(--green);
-    }
+    .ok-c { color: var(--green) }
+    .fail-c { color: var(--danger) }
 
-    .fail-c {
-      color: var(--danger);
-    }
-
-    .cas {
-      display: flex;
-      gap: 8px;
-    }
+    .cas { display: flex; gap: 8px }
 
     .cb {
       padding: 6px 14px;
@@ -357,30 +333,30 @@
       font-size: 11px;
       cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
-      transition: all .15s;
+      transition: all .15s
     }
 
     .cb:hover {
       border-color: var(--accent);
-      color: var(--accent);
+      color: var(--accent)
     }
 
     .cb.copied {
       border-color: var(--green);
-      color: var(--green);
+      color: var(--green)
     }
 
     .pbar {
       height: 2px;
       background: var(--border);
-      overflow: hidden;
+      overflow: hidden
     }
 
     .pfill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       width: 0%;
-      transition: width .4s;
+      transition: width .4s
     }
 
     .toast {
@@ -398,12 +374,12 @@
       transform: translateY(8px);
       transition: all .2s;
       pointer-events: none;
-      z-index: 999;
+      z-index: 999
     }
 
     .toast.show {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0)
     }
 
     .ibox {
@@ -414,40 +390,38 @@
       border-radius: 8px;
       font-size: 11px;
       color: var(--muted);
-      line-height: 1.8;
+      line-height: 1.8
     }
 
     .ibox .t {
       color: var(--dim);
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 6px
     }
 
-    .w {
-      color: var(--warn);
-    }
+    .w { color: var(--warn) }
 
     .note {
       font-size: 10px;
       color: var(--muted);
       padding: 6px 16px 8px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'JetBrains Mono', monospace
     }
 
     .cfg-banner {
-      background: rgba(255, 179, 64, .07);
-      border: 1px solid rgba(255, 179, 64, .25);
+      background: rgba(0, 212, 170, .05);
+      border: 1px solid rgba(0, 212, 170, .3);
       border-radius: 8px;
       padding: 14px 16px;
       margin-bottom: 20px;
       font-size: 12px;
       line-height: 1.8;
-      color: var(--warn);
+      color: var(--dim)
     }
 
     .cfg-banner strong {
-      color: var(--warn);
-      font-size: 13px;
+      color: var(--accent);
+      font-size: 13px
     }
 
     .cfg-banner code {
@@ -456,12 +430,12 @@
       border-radius: 3px;
       font-family: 'JetBrains Mono', monospace;
       color: var(--accent);
-      font-size: 12px;
+      font-size: 12px
     }
 
     @media(max-width:640px) {
       .layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr
       }
     }
   </style>
@@ -469,10 +443,11 @@
 <body>
   <div class="container">
 
-    <!-- ⚠️ Worker 未設定時顯示 -->
+    <!-- 現在改用第三方 Quote API，不再需要設定 Worker_URL -->
     <div class="cfg-banner" id="cfgBanner">
-      ⚙️ <strong>第一次使用設定</strong>：請將下方 <code>WORKER_URL</code> 換成你的 Cloudflare Worker 網址，再存檔推上 GitHub。<br>
-      Worker 網址格式：<code>https://你的名稱.workers.dev</code>
+      🔌 <strong>資料來源說明</strong>：本工具直接使用
+      <code>stock-quote-proxy.sukailin1124.workers.dev</code>
+      查詢 TWSE / TPEX / ETF 最新價格，僅供教學與個人研究使用。
     </div>
 
     <header>
@@ -497,12 +472,12 @@
         </div>
         <div class="ibox">
           <div class="t">使用說明</div>
-          <div>• 每行輸入一個股票代號</div>
-          <div>• 支援上市、上櫃、ETF（含債券 ETF）</div>
-          <div>• 資料來源：TWSE / TPEX 官方</div>
+          <div>• 每行輸入一個股票或 ETF 代號（可含上櫃、債券 ETF）</div>
+          <div>• 系統會自動判斷上市 / 上櫃</div>
+          <div>• 資料來源：TWSE / TPEX / 其他公開 API</div>
           <div class="w" style="margin-top:6px">• 查詢完按「複製收盤價」</div>
           <div class="w">• 直接貼入 Excel 即可</div>
-          <div style="margin-top:6px">• 非交易日可能無資料</div>
+          <div style="margin-top:6px">• 假日或非交易時段可能顯示前一交易日資料</div>
         </div>
       </div>
 
@@ -532,36 +507,33 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ============================================================
-    //  ★ 填入你的 Cloudflare Worker 網址（結尾不要加斜線）
-    //  例如： https://taiwan-stock-api.yourname.workers.dev
-    // ============================================================
-    const WORKER_URL = 'https://taiwan-stock-api.duoduop33.workers.dev';
-    // ============================================================
+    // 使用第三方 Quote API，整合 TWSE / TPEX / ETF 價格
+    const QUOTE_API = 'https://stock-quote-proxy.sukailin1124.workers.dev';
 
-    const isConfigured = !!WORKER_URL && WORKER_URL.startsWith('http');
-    if (isConfigured) document.getElementById('cfgBanner').style.display = 'none';
+    // 直接隱藏舊的設定提示
+    document.getElementById('cfgBanner').style.display = 'none';
 
-    let twseMap = {}, otcMap = {}, resultsData = [];
+    let resultsData = [];
 
     // 顯示今天日期
     document.getElementById('dateDisplay').textContent =
-      new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      new Date().toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
 
-    // 輸入框計數
+    // 輸入框計算筆數
     document.getElementById('stockInput').addEventListener('input', () => {
       document.getElementById('inputCount').textContent = parseInput().length;
     });
 
-    // ✅ 強化版 parseInput：只抓每行開頭第一串英數字當代碼
     function parseInput() {
       return document.getElementById('stockInput').value
         .split('\n')
         .map(line => {
           const trimmed = line.trim();
           if (!trimmed) return '';
-
-          // 行首第一段英數字（支援 00679B 這種格式）
           const m = trimmed.match(/^([0-9A-Z]+)/i);
           return m ? m[1].toUpperCase() : '';
         })
@@ -576,7 +548,7 @@
       document.getElementById('resultsFooter').style.display = 'none';
       document.getElementById('progressFill').style.width = '0%';
       setStatus('等待查詢...');
-      resultsData = []; twseMap = {}; otcMap = {};
+      resultsData = [];
     }
 
     function setStatus(msg, loading = false) {
@@ -585,51 +557,45 @@
         : `<span>${msg}</span>`;
     }
 
-    async function loadTWSE() {
-      const resp = await fetch(`${WORKER_URL}/api/twse`);
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
-      data.forEach(item => {
-        const code = (item.Code || '').trim();
-        if (!code) return;
-        twseMap[code] = {
-          name: (item.Name || code).trim(),
-          close: (item.ClosingPrice || '').replace(/,/g, '').trim(),
-          change: (item.Change || '0').replace(/,/g, '').trim(),
-          source: 'TWSE'
-        };
-      });
-      return Object.keys(twseMap).length;
-    }
+    // 依序查詢：先試 tse，失敗再試 otc
+    async function fetchOneQuote(code) {
+      const markets = ['tse', 'otc'];
 
-    async function loadOTC() {
-      const resp = await fetch(`${WORKER_URL}/api/otc`);
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
+      for (const mkt of markets) {
+        try {
+          const url = `${QUOTE_API}/quote?symbol=${encodeURIComponent(code)}&market=${mkt}`;
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (!data.ok) continue;
 
-      data.forEach(item => {
-        const code = (item.SecuritiesCompanyCode || item.Code || '').trim();
-        if (!code) return;
+          const price = Number(data.price);
+          const prevClose =
+            data.meta && data.meta.prevClose != null
+              ? Number(data.meta.prevClose)
+              : price;
 
-        // Close 可能為 " ---"（未成交），Change 帶 + 號
-        const rawClose = (item.Close || item.ClosingPrice || '').replace(/,/g, '').trim();
-        const rawChange = (item.Change || '0').replace(/,/g, '').replace(/\+/g, '').trim();
+          const chg = price - prevClose;
+          const pct = prevClose ? ((chg / prevClose) * 100) : 0;
 
-        otcMap[code] = {
-          name: (item.CompanyName || item.Name || code).trim(),
-          close: rawClose.startsWith('---') || rawClose === '' ? '' : rawClose,
-          change: rawChange,
-          source: 'OTC'
-        };
-      });
-      return Object.keys(otcMap).length;
+          return {
+            ok: true,
+            code,
+            name: data.meta && data.meta.name ? data.meta.name : code,
+            close: price.toFixed(2),
+            change: chg.toFixed(2),
+            pct: pct.toFixed(2),
+            source: mkt === 'tse' ? 'TWSE' : 'OTC'
+          };
+        } catch (e) {
+          // 單一市場錯誤就換下一個市場
+        }
+      }
+
+      return { ok: false, code };
     }
 
     async function fetchPrices() {
-      if (!isConfigured) {
-        showToast('請先設定 WORKER_URL');
-        return;
-      }
       const codes = parseInput();
       if (!codes.length) {
         showToast('請先輸入股票代號');
@@ -637,105 +603,78 @@
       }
 
       document.getElementById('fetchBtn').disabled = true;
-      resultsData = []; twseMap = {}; otcMap = {};
       document.getElementById('resultsFooter').style.display = 'none';
-      document.getElementById('progressFill').style.width = '10%';
-      setStatus('載入上市股票資料...', true);
+      document.getElementById('progressFill').style.width = '0%';
+      setStatus('查詢中...', true);
+      resultsData = [];
 
-      let twseCount = 0, otcCount = 0;
-
-      try {
-        twseCount = await loadTWSE();
-        document.getElementById('progressFill').style.width = '50%';
-        setStatus(`上市 ${twseCount} 筆 ✓，載入上櫃資料...`, true);
-      } catch (e) {
-        setStatus(`上市資料失敗：${e.message}`);
-      }
-
-      try {
-        otcCount = await loadOTC();
-        document.getElementById('progressFill').style.width = '80%';
-      } catch (e) {
-        // 若櫃買資料抓不到，仍顯示上市結果
-        console.error('OTC error:', e);
-      }
-
-      if (!twseCount && !otcCount) {
-        document.getElementById('resultsBody').innerHTML = `
-          <div style="padding:24px 16px;color:var(--danger);font-size:12px;line-height:1.8">
-            ❌ 無法取得資料。可能原因：<br>
-            • 今日為非交易日 / 盤前<br>
-            • Worker 網址設定錯誤<br>
-            • TWSE / TPEX API 暫時異常
-          </div>`;
-        document.getElementById('progressFill').style.width = '0%';
-        setStatus('查詢失敗');
-        document.getElementById('fetchBtn').disabled = false;
-        return;
-      }
-
-      resultsData = codes.map(code => {
-        const r = twseMap[code] || otcMap[code];
-        if (!r || !r.close || r.close === '' || r.close === '--') {
-          return { code, ok: false };
-        }
-        const closeNum = parseFloat(r.close);
-        const changeNum = parseFloat(r.change) || 0;
-        const prev = closeNum - changeNum;
-        const pct = prev ? ((changeNum / prev) * 100).toFixed(2) : '0.00';
-        return {
-          code,
-          ok: true,
-          name: r.name,
-          close: closeNum.toFixed(2),
-          change: changeNum.toFixed(2),
-          pct,
-          source: r.source
-        };
-      });
-
+      const total = codes.length;
+      let done = 0;
       let ok = 0, fail = 0;
-      let html = `<table><thead><tr>
-        <th>代號</th><th>名稱</th>
-        <th class="r">收盤價</th><th class="r">漲跌</th>
-      </tr></thead><tbody>`;
+      const rows = [];
 
-      resultsData.forEach(r => {
+      for (const code of codes) {
+        const r = await fetchOneQuote(code);
+        resultsData.push(r);
+        done++;
+        const pct = Math.round((done / total) * 100);
+        document.getElementById('progressFill').style.width = `${pct}%`;
+        setStatus(`查詢中 (${done}/${total})`, true);
+
         if (r.ok) {
           ok++;
-          const up = parseFloat(r.change) > 0;
-          const dn = parseFloat(r.change) < 0;
+          const up = Number(r.change) > 0;
+          const dn = Number(r.change) < 0;
           const cls = up ? 'up' : dn ? 'down' : 'flat';
           const sign = up ? '▲' : dn ? '▼' : '—';
           const bdg = r.source === 'TWSE'
             ? '<span class="badge tw">上市</span>'
             : '<span class="badge ot">上櫃</span>';
-          html += `<tr>
-            <td class="code">${r.code}</td>
-            <td>${r.name}${bdg}</td>
-            <td class="price ${cls}">${r.close}</td>
-            <td class="chg ${cls}">${sign} ${Math.abs(r.change)} (${r.pct}%)</td>
-          </tr>`;
+
+          rows.push(
+            `<tr>
+              <td class="code">${r.code}</td>
+              <td>${r.name}${bdg}</td>
+              <td class="price ${cls}">${r.close}</td>
+              <td class="chg ${cls}">${sign} ${Math.abs(r.change)} (${r.pct}%)</td>
+            </tr>`
+          );
         } else {
           fail++;
-          html += `<tr>
-            <td class="code">${r.code}</td>
-            <td colspan="3" style="color:var(--danger);font-size:12px;">
-              查無資料（代號錯誤 / 今日未成交 / 停止買賣）
-            </td>
-          </tr>`;
+          rows.push(
+            `<tr>
+              <td class="code">${code}</td>
+              <td colspan="3" style="color:var(--danger);font-size:12px;">
+                查無資料（代號錯誤 / API 無此商品）
+              </td>
+            </tr>`
+          );
         }
-      });
-      html += `</tbody></table>
-        <div class="note">資料來源：台灣證券交易所 / 櫃買中心　上市 ${twseCount} 筆 / 上櫃 ${otcCount} 筆</div>`;
+      }
+
+      const html =
+        `<table>
+          <thead>
+            <tr>
+              <th>代號</th><th>名稱</th>
+              <th class="r">收盤價</th><th class="r">漲跌</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.join('')}
+          </tbody>
+        </table>
+        <div class="note">
+          資料來源：stock-quote-proxy.sukailin1124.workers.dev（整合 TWSE / TPEX / MIS 等多來源）
+        </div>`;
 
       document.getElementById('resultsBody').innerHTML = html;
-      document.getElementById('progressFill').style.width = '100%';
-      setStatus(`查詢完成｜${new Date().toLocaleTimeString('zh-TW')}｜共 ${codes.length} 筆`);
+      setStatus(`查詢完成｜${new Date().toLocaleTimeString('zh-TW')}｜共 ${total} 筆`);
       document.getElementById('fetchBtn').disabled = false;
-      document.getElementById('statsDisplay').innerHTML =
-        `<span class="ok-c">✓ ${ok} 筆成功</span>${fail ? `<span class="fail-c">✗ ${fail} 筆查無資料</span>` : ''}`;
       document.getElementById('resultsFooter').style.display = 'flex';
+      document.getElementById('statsDisplay').innerHTML =
+        `<span class="ok-c">✓ ${ok} 筆成功</span>` +
+        (fail ? `<span class="fail-c">✗ ${fail} 筆查無資料</span>` : '');
     }
 
     function copyPrices() {
@@ -765,7 +704,8 @@
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
+      t.textContent = msg;
+      t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2800);
     }
   </script>
